@@ -1,0 +1,47 @@
+{
+    "name": "fomvasss/laravel-notification-channel-turbo-sms",
+    "description": "This package makes it easy to send notifications using [turbosms.ua](https://turbosms.ua) with Laravel 5.5+",
+    "homepage": "https://github.com/fomvasss/laravel-notification-channel-turbo-sms",
+    "keywords": ["laravel", "notifications", "sms", "turbo-sms", "ТурбоСМС"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fomin Vasil",
+            "email": "fomvasss@gmail.com",
+            "homepage": "https://github.com/fomvasss",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "illuminate/notifications": "^5.5|^6.0|^7.0|^8.0|^9.0",
+        "illuminate/support": "^5.5|^6.0|^7.0|^8.0|^9.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "mockery/mockery": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "NotificationChannels\\TurboSms\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NotificationChannels\\TurboSms\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NotificationChannels\\TurboSms\\TurboSmsServiceProvider"
+            ]
+        }
+    }
+}
