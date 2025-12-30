@@ -39,14 +39,14 @@ class TurboSmsMessage
      *
      * @return static
      */
-    public static function create($content = '')
+    public static function create(string $content = '')
     {
         return new static($content);
     }
     /**
      * @param  string  $content
      */
-    public function __construct($content = '')
+    public function __construct(string $content = '')
     {
         $this->content = $content;
     }
@@ -57,7 +57,7 @@ class TurboSmsMessage
      *
      * @return $this
      */
-    public function content($content)
+    public function content(string $content)
     {
         $this->content = $content;
 
@@ -85,7 +85,7 @@ class TurboSmsMessage
      *
      * @return $this
      */
-    public function from($from)
+    public function from(string $from)
     {
         $this->from = $from;
 

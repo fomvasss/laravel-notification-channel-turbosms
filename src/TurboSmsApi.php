@@ -14,7 +14,7 @@ class TurboSmsApi
 
     protected $baseUri = 'https://api.turbosms.ua/';
 
-    public function __construct($apiToken, $sender, array $configs = [])
+    public function __construct(string $apiToken, string $sender, array $configs = [])
     {
         $this->apiToken = $apiToken;
         $this->smsSender = $sender;
@@ -31,7 +31,7 @@ class TurboSmsApi
      * @param TurboSmsMessage $message
      * @return array
      */
-    public function sendMessage($recipient, TurboSmsMessage $message)
+    public function sendMessage(string $recipient, TurboSmsMessage $message)
     {
         $url = $this->baseUri . 'message/send.json';
         $body = [
@@ -60,11 +60,28 @@ class TurboSmsApi
     }
 
     /**
+     * @return float|null
+     * @throws \Exception
+     */
+    public function getBalance(): float|null
+    {
+        $url = $this->baseUri . 'user/balance.json';
+
+        $res = $this->getResponse($url);
+        
+        if (isset($res['success']) && $res['success']) {
+            return $res['result']['balance'] ?? null;
+        }
+
+        return null;
+    }
+
+    /**
      * @param string $url
      * @param array $body
      * @return array
      */
-    public function getResponse($url, $body)
+    public function getResponse(string $url, array $body = [])
     {
         if ($this->isTest) {
             return [
