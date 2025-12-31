@@ -92,7 +92,7 @@ public function routeNotificationForTurboSms()
 
 Get balance:
 ```php
-app(TurboSmsApi::class)->getBalance(); // float, example 123.45
+app(TurboSmsApi::class)->getBalance(); // null|float, example 123.45
 ```
 
 Send message:
