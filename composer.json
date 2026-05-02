@@ -4,6 +4,16 @@
     "homepage": "https://github.com/fomvasss/laravel-notification-channel-turbo-sms",
     "keywords": ["laravel", "notifications", "sms", "turbo-sms", "ТурбоСМС"],
     "license": "MIT",
+    "funding": [
+        {
+            "type": "custom",
+            "url": "https://send.monobank.ua/jar/5xsqtHvVrY"
+        },
+        {
+            "type": "ko_fi",
+            "url": "https://ko-fi.com/fomvasss"
+        }
+    ],
     "authors": [
         {
             "name": "Fomin Vasil",
