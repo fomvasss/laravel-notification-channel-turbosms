@@ -6,6 +6,8 @@
 
 This package makes it easy to send SMS notifications using [turbosms.ua](https://turbosms.ua/) with Laravel. Supports sending messages and retrieving account balance.
 
+> 🇺🇦 [Документація українською](README.uk.md)
+
 > Laravel Notifications documentation: https://laravel.com/docs/notifications
 
 ---
