@@ -1,57 +1,57 @@
-# TurboSms Notifications Channel for Laravel
+# TurboSms — канал сповіщень для Laravel
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/fomvasss/laravel-notification-channel-turbo-sms.svg?style=flat-square)](https://packagist.org/packages/fomvasss/laravel-notification-channel-turbo-sms)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/fomvasss/laravel-notification-channel-turbo-sms.svg?style=flat-square)](https://packagist.org/packages/fomvasss/laravel-notification-channel-turbo-sms)
 
-This package makes it easy to send SMS notifications using [turbosms.ua](https://turbosms.ua/) with Laravel. Supports sending messages and retrieving account balance.
+Пакет для відправки SMS-сповіщень через [turbosms.ua](https://turbosms.ua/) у Laravel. Підтримує надсилання повідомлень та отримання балансу рахунку.
 
-> 🇺🇦 [Документація українською](README.uk.md)
+> 🇬🇧 [Documentation in English](README.en.md)
 
-> Laravel Notifications documentation: https://laravel.com/docs/notifications
+> Документація Laravel Notifications: https://laravel.com/docs/notifications
 
 ---
 
-## Support
+## Підтримка проекту
 
-If this package is useful to you, consider supporting its development:
+Якщо пакет вам корисний — підтримайте розробку:
 
 [![Monobank](https://img.shields.io/badge/Donate-Monobank-black)](https://send.monobank.ua/jar/5xsqtHvVrY)
 [![Ko-Fi](https://img.shields.io/badge/Donate-Ko--fi-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/fomvasss)
 [![USDT TRC20](https://img.shields.io/badge/Donate-USDT%20TRC20-26A17B?logo=tether&logoColor=white)](https://link.trustwallet.com/send?coin=195&address=THLgp6DxiAtbNHvgnKV56vk1L38UuUagKf&token_id=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t)
 
-> USDT TRC20 address: `THLgp6DxiAtbNHvgnKV56vk1L38UuUagKf`
+> USDT TRC20 адреса: `THLgp6DxiAtbNHvgnKV56vk1L38UuUagKf`
 
 ---
 
-## Requirements
+## Вимоги
 
 - PHP >= 8.1
-- Laravel 10, 11 or 12
+- Laravel 10, 11 або 12
 
-## Installation
+## Встановлення
 
 ```bash
 composer require fomvasss/laravel-notification-channel-turbo-sms
 ```
 
-## Configuration
+## Налаштування
 
-Add TurboSMS credentials to `config/services.php`:
+Додайте конфігурацію TurboSMS у `config/services.php`:
 
 ```php
 'turbosms' => [
     'api_token'       => env('TURBOSMS_API_TOKEN'),
-    'sender'          => env('TURBOSMS_SENDER', 'TAXI'),    // default sender name
-    'is_test'         => env('TURBOSMS_IS_TEST', false),    // if true — no real SMS sent
+    'sender'          => env('TURBOSMS_SENDER', 'TAXI'),    // ім'я відправника за замовчуванням
+    'is_test'         => env('TURBOSMS_IS_TEST', false),    // true — SMS не відправляються реально
 
-    // Optional HTTP client timeouts (seconds):
+    // Необов'язково — таймаути HTTP-клієнта (секунди):
     'timeout'         => env('TURBOSMS_TIMEOUT', 15),
     'connect_timeout' => env('TURBOSMS_CONNECT_TIMEOUT', 10),
 ],
 ```
 
-`.env` example:
+Приклад `.env`:
 
 ```env
 TURBOSMS_API_TOKEN=your_api_token_here
@@ -59,11 +59,11 @@ TURBOSMS_SENDER=TAXI
 TURBOSMS_IS_TEST=false
 ```
 
-Free test senders available in TurboSMS: `TAXI`, `AKCIYA`, `BEAUTY`, `Best-offer`, `Best-Shop`, `BonusShop`, `IT Alarm`, `MAGAZIN`, `Dostavka24`, `SERVIS TAXI`, `BRAND`.
+Безкоштовні тестові імена відправників у TurboSMS: `TAXI`, `AKCIYA`, `BEAUTY`, `Best-offer`, `Best-Shop`, `BonusShop`, `IT Alarm`, `MAGAZIN`, `Dostavka24`, `SERVIS TAXI`, `BRAND`.
 
-## Usage via Notification
+## Використання через Notification
 
-Implement the `toTurboSms()` method in your notification class:
+Реалізуйте метод `toTurboSms()` у класі сповіщення:
 
 ```php
 use Illuminate\Notifications\Notification;
@@ -79,14 +79,14 @@ class OrderShipped extends Notification
 
     public function toTurboSms(mixed $notifiable): TurboSmsMessage
     {
-        return TurboSmsMessage::create("Your order #{$this->order->id} has been shipped!")
-            ->from('MyShop')      // optional: override default sender
-            ->test(false);        // optional: override test mode
+        return TurboSmsMessage::create("Ваше замовлення #{$this->order->id} відправлено!")
+            ->from('MyShop')   // необов'язково: перевизначити відправника
+            ->test(false);     // необов'язково: перевизначити тестовий режим
     }
 }
 ```
 
-Add `routeNotificationForTurboSms()` to your notifiable model:
+Додайте метод `routeNotificationForTurboSms()` до моделі notifiable:
 
 ```php
 public function routeNotificationForTurboSms(): string
@@ -95,61 +95,62 @@ public function routeNotificationForTurboSms(): string
 }
 ```
 
-## Message Methods
+## Методи повідомлення
 
-| Method | Description |
+| Метод | Опис |
 |---|---|
-| `content(string $text)` | Set the SMS text |
-| `from(string $sender)` | Override the default sender name or phone |
-| `time(?int $timestamp)` | Schedule sending (Unix timestamp). E.g. `time() + 7*60*60` for +7h |
-| `test(bool $test = true)` | Enable/disable test mode per message (no real SMS sent) |
+| `content(string $text)` | Текст SMS |
+| `from(string $sender)` | Перевизначити ім'я або номер відправника |
+| `time(?int $timestamp)` | Запланувати відправку (Unix timestamp). Наприклад `time() + 7*60*60` — через 7 годин |
+| `test(bool $test = true)` | Увімкнути/вимкнути тестовий режим для конкретного повідомлення |
 
-## Usage via Service Container
+## Використання через Service Container
 
-**Get balance:**
+**Отримати баланс:**
 ```php
 $balance = app(\NotificationChannels\TurboSms\TurboSmsApi::class)->getBalance();
-// returns float|null, e.g. 123.45
+// повертає float|null, наприклад 123.45
 ```
 
-**Send message directly:**
+**Відправити повідомлення напряму:**
 ```php
 $result = app(\NotificationChannels\TurboSms\TurboSmsApi::class)->sendMessage(
     '380991234567',
-    \NotificationChannels\TurboSms\TurboSmsMessage::create('Hello Laravel!')
+    \NotificationChannels\TurboSms\TurboSmsMessage::create('Привіт від Laravel!')
 );
-// returns array with 'success', 'result', 'info' keys
+// повертає масив з ключами 'success', 'result', 'info'
 ```
 
-## Error Handling
+## Обробка помилок
 
-On failure the channel fires a `NotificationFailed` event with the exception details. You can listen to it:
+При невдалій відправці канал генерує подію `NotificationFailed`. Підпишіться на неї для обробки:
 
 ```php
 use Illuminate\Notifications\Events\NotificationFailed;
 
 Event::listen(NotificationFailed::class, function (NotificationFailed $event) {
-    logger()->error('TurboSMS notification failed', $event->data);
+    logger()->error('TurboSMS сповіщення не відправлено', $event->data);
 });
 ```
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for recent changes.
+Дивіться [CHANGELOG](CHANGELOG.md) для інформації про зміни.
 
-## Security
+## Безпека
 
-If you discover any security related issues, please email fomvasss@gmail.com instead of using the issue tracker.
+Якщо ви виявили вразливість — напишіть на fomvasss@gmail.com замість публічного issue.
 
-## Contributing
+## Участь у розробці
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Дивіться [CONTRIBUTING](CONTRIBUTING.md).
 
-## Credits
+## Автори
 
 - [fomvasss](https://github.com/fomvasss)
-- [All Contributors](../../contributors)
+- [Всі учасники](../../contributors)
 
-## License
+## Ліцензія
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+MIT License. Дивіться [License File](LICENSE.md).
+
