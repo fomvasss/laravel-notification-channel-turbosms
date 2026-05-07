@@ -25,8 +25,8 @@
     "require": {
         "php": ">=8.1",
         "guzzlehttp/guzzle": "^7.0",
-        "illuminate/notifications": "^10|^11|^12",
-        "illuminate/support": "^10|^11|^12"
+        "illuminate/notifications": "^10|^11|^12|^13",
+        "illuminate/support": "^10|^11|^12|^13"
     },
     "require-dev": {
         "orchestra/testbench": "^8.0|^9.0",

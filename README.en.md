@@ -26,7 +26,7 @@ Send SMS notifications via [turbosms.ua](https://turbosms.ua/) in Laravel with e
 | Dependency | Version |
 |---|---|
 | PHP | >= 8.1 |
-| Laravel | 10, 11, 12 |
+| Laravel | 10, 11, 12, 13 |
 
 ---
 
