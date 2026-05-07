@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace NotificationChannels\TurboSms;
 
 use Illuminate\Support\ServiceProvider;
@@ -9,15 +11,16 @@ class TurboSmsServiceProvider extends ServiceProvider
     /**
      * Register the application services.
      */
-    public function register()
+    public function register(): void
     {
         $this->app->singleton(TurboSmsApi::class, function ($app) {
-            $apiToken = $this->app['config']['services.turbosms.api_token'];
-            $sender = $this->app['config']['services.turbosms.sender'];
-      
-            $client = new TurboSmsApi($apiToken, $sender, $this->app['config']['services.turbosms']);
-            
-            return $client;
+            $config = $app['config']['services.turbosms'] ?? [];
+
+            return new TurboSmsApi(
+                apiToken: $config['api_token'] ?? '',
+                smsSender: $config['sender'] ?? '',
+                configs: $config,
+            );
         });
     }
 

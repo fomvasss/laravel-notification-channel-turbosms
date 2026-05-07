@@ -1,91 +1,49 @@
 <?php
 
-namespace NotificationChannels\TurboSms;
+declare(strict_types=1);
 
-use Illuminate\Support\Arr;
+namespace NotificationChannels\TurboSms;
 
 class TurboSmsMessage
 {
     /**
-     * The phone number the message should be sent from.
-     *
-     * @var string
+     * The sender name or phone number.
      */
-    public $from = '';
+    public ?string $from = null;
+
     /**
      * The message content.
-     *
-     * @var string
      */
-    public $content = '';
+    public string $content = '';
 
     /**
-     * Time of sending a message.
-     *
-     * @var int
+     * Scheduled send time (Unix timestamp).
      */
-    public $time;
+    public ?int $time = null;
 
     /**
-     * @var bool
+     * Whether this is a test send (no real SMS).
      */
-    public $test;
+    public ?bool $test = null;
 
-
-    /**
-     * Create a new message instance.
-     *
-     * @param  string $content
-     *
-     * @return static
-     */
-    public static function create(string $content = '')
+    public static function create(string $content = ''): static
     {
         return new static($content);
     }
-    /**
-     * @param  string  $content
-     */
+
     public function __construct(string $content = '')
     {
         $this->content = $content;
     }
-    /**
-     * Set the message content.
-     *
-     * @param  string  $content
-     *
-     * @return $this
-     */
-    public function content(string $content)
+
+    public function content(string $content): static
     {
         $this->content = $content;
 
         return $this;
     }
 
-    /**
-     * Set the test SMS - imitation sending.
-     *
-     * @param  string  $from
-     *
-     * @return $this
-     */
-    public function test(bool $test = false)
-    {
-        $this->test = $test;
-
-        return $this;
-    }
-
-    /**
-     * Set the phone number or sender name the message should be sent from.
-     *
-     * @param  string  $from
-     *
-     * @return $this
-     */
-    public function from(string $from)
+    public function from(string $from): static
     {
         $this->from = $from;
 
@@ -93,14 +51,21 @@ class TurboSmsMessage
     }
 
     /**
-     * Postpone shipping for -n- sec.
-     *
-     * @param null $time
-     * @return $this
+     * Schedule message sending. Example: time() + 7*60*60 to delay by 7 hours.
      */
-    public function time(int $time = null)
+    public function time(?int $time = null): static
     {
         $this->time = $time;
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable test mode (no real SMS is sent).
+     */
+    public function test(bool $test = true): static
+    {
+        $this->test = $test;
 
         return $this;
     }

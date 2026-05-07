@@ -1,34 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace NotificationChannels\TurboSms\Exceptions;
 
 use NotificationChannels\TurboSms\TurboSmsMessage;
 
 class CouldNotSendNotification extends \Exception
 {
-    /**
-     * @return static
-     */
-    public static function missingFrom()
+    public static function missingFrom(): static
     {
         return new static('Notification was not sent. Missing `from` number.');
     }
 
-    /**
-     * @return CouldNotSendNotification
-     */
-    public static function invalidReceiver()
+    public static function invalidReceiver(): static
     {
-        return new static("The notifiable did not have a receiving phone number. Add a <routeNotificationForSmsru>
-            method or a <phone> attribute to your notifiable.");
+        return new static(
+            'The notifiable did not have a receiving phone number. Add a `routeNotificationForTurboSms` method or a `phone` attribute to your notifiable.'
+        );
     }
 
-    public static function invalidMessageObject($message)
+    public static function invalidMessageObject(mixed $message): static
     {
-        $className = get_class($message) ?: 'Unknown';
+        $className = is_object($message) ? get_class($message) : gettype($message);
 
         return new static(
-            "Notification was not sent. Message object class `{$className}` is invalid. It should
-            be either `".TurboSmsMessage::class);
+            "Notification was not sent. Message object class `{$className}` is invalid. It should be an instance of `" . TurboSmsMessage::class . '`.'
+        );
     }
 }

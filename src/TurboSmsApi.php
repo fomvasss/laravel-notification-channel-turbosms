@@ -1,58 +1,54 @@
 <?php
 
+declare(strict_types=1);
+
 namespace NotificationChannels\TurboSms;
 
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\GuzzleException;
 
 class TurboSmsApi
 {
-    /** @var HttpClient */
-    protected $client;
-    protected $apiToken;
-    protected $smsSender;
-    protected $isTest;
+    protected HttpClient $client;
+    protected bool $isTest;
 
-    protected $baseUri = 'https://api.turbosms.ua/';
+    protected string $baseUri = 'https://api.turbosms.ua/';
 
-    public function __construct(string $apiToken, string $sender, array $configs = [])
-    {
-        $this->apiToken = $apiToken;
-        $this->smsSender = $sender;
-        $this->isTest = $configs['is_test'] ?? false;
-        
+    public function __construct(
+        protected string $apiToken,
+        protected string $smsSender,
+        array $configs = [],
+    ) {
+        $this->isTest = (bool) ($configs['is_test'] ?? false);
+
         $this->client = new HttpClient([
-            'timeout' => intval($configs['timeout'] ?? 15),
-            'connect_timeout' => intval($configs['connect_timeout'] ?? 10),
+            'timeout' => (int) ($configs['timeout'] ?? 15),
+            'connect_timeout' => (int) ($configs['connect_timeout'] ?? 10),
         ]);
     }
 
     /**
-     * @param $recipient
-     * @param TurboSmsMessage $message
-     * @return array
+     * Send an SMS message to a recipient.
+     *
+     * @throws \RuntimeException|GuzzleException
      */
-    public function sendMessage(string $recipient, TurboSmsMessage $message)
+    public function sendMessage(string $recipient, TurboSmsMessage $message): array
     {
         $url = $this->baseUri . 'message/send.json';
+
         $body = [
             'recipients' => [$recipient],
             'sms' => [
+                'sender' => $message->from ?? $this->smsSender,
                 'text' => $message->content,
             ],
         ];
 
-        if ($this->smsSender) {
-            $body['sms']['sender'] = $this->smsSender;
-        }
-        if ($message->from) {
-            $body['sms']['sender'] = $message->from;
-        }
-
-        if (!is_null($message->test)) {
+        if (! is_null($message->test)) {
             $this->isTest = $message->test;
         }
 
-        if (!is_null($message->time)) {
+        if (! is_null($message->time)) {
             $body['start_time'] = $message->time;
         }
 
@@ -60,28 +56,29 @@ class TurboSmsApi
     }
 
     /**
-     * @return float|null
-     * @throws \Exception
+     * Get the account balance.
+     *
+     * @throws \RuntimeException|GuzzleException
      */
-    public function getBalance(): float|null
+    public function getBalance(): ?float
     {
         $url = $this->baseUri . 'user/balance.json';
 
         $res = $this->getResponse($url);
-        
+
         if (isset($res['success']) && $res['success']) {
-            return $res['result']['balance'] ?? null;
+            return isset($res['result']['balance']) ? (float) $res['result']['balance'] : null;
         }
 
         return null;
     }
 
     /**
-     * @param string $url
-     * @param array $body
-     * @return array
+     * Perform a POST request to the TurboSMS API.
+     *
+     * @throws \RuntimeException|GuzzleException
      */
-    public function getResponse(string $url, array $body = [])
+    public function getResponse(string $url, array $body = []): array
     {
         if ($this->isTest) {
             return [
@@ -95,32 +92,33 @@ class TurboSmsApi
         }
 
         $response = $this->client->request('POST', $url, [
-            'headers'        => [
+            'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->apiToken,
             ],
-            'json' => $body
+            'json' => $body,
         ]);
 
-        $answer = \json_decode((string) $response->getBody(), true);
+        $answer = json_decode((string) $response->getBody(), true);
+
+        if (! is_array($answer)) {
+            throw new \RuntimeException('TurboSMS returned an invalid JSON response.');
+        }
 
         if (isset($answer['error'])) {
-            throw new \Exception($answer['error'] ?? 'Erorr TurboSMS.');
+            throw new \RuntimeException($answer['error']);
         }
 
-        if (!isset($answer['response_result']) || !$answer['response_result']) {
-            $error = 'TurboSMS  response status: ' . ($answer['response_status'] ?? 'null');
-
-            throw new \Exception($answer['response_status'] ?? $error);
+        if (empty($answer['response_result'])) {
+            $status = $answer['response_status'] ?? 'unknown';
+            throw new \RuntimeException('TurboSMS response status: ' . $status);
         }
-
-        $info = 'TurboSMS  response status: ' . ($answer['response_status'] ?? '');
 
         return [
             'success' => true,
             'result' => $answer['response_result'],
-            'info' => $info,
+            'info' => 'TurboSMS response status: ' . ($answer['response_status'] ?? ''),
         ];
     }
 }

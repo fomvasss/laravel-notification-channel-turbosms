@@ -1,14 +1,14 @@
-# TurboSms notifications channel for Laravel
-
-Here's the latest documentation on Laravel's Notifications System: 
-
-https://laravel.com/docs/master/notifications
+# TurboSms Notifications Channel for Laravel
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/fomvasss/laravel-notification-channel-turbo-sms.svg?style=flat-square)](https://packagist.org/packages/fomvasss/laravel-notification-channel-turbo-sms)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Quality Score](https://img.shields.io/scrutinizer/g/fomvasss/laravel-notification-channel-turbosms.svg?style=flat-square)](https://scrutinizer-ci.com/g/fomvasss/laravel-notification-channel-turbosms)
-[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/fomvasss/laravel-notification-channel-turbosms/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/fomvasss/laravel-notification-channel-turbosms/?branch=master)
 [![Total Downloads](https://img.shields.io/packagist/dt/fomvasss/laravel-notification-channel-turbo-sms.svg?style=flat-square)](https://packagist.org/packages/fomvasss/laravel-notification-channel-turbo-sms)
+
+This package makes it easy to send SMS notifications using [turbosms.ua](https://turbosms.ua/) with Laravel. Supports sending messages and retrieving account balance.
+
+> Laravel Notifications documentation: https://laravel.com/docs/notifications
+
+---
 
 ## Support
 
@@ -20,99 +20,120 @@ If this package is useful to you, consider supporting its development:
 
 > USDT TRC20 address: `THLgp6DxiAtbNHvgnKV56vk1L38UuUagKf`
 
-This package makes it easy to send notifications using [turbosms.ua](https://turbosms.ua/) with Laravel. Send SMS messages, get account balance.
+---
+
+## Requirements
+
+- PHP >= 8.1
+- Laravel 10, 11 or 12
 
 ## Installation
-
-Install this package with Composer:
 
 ```bash
 composer require fomvasss/laravel-notification-channel-turbo-sms
 ```
+
 ## Configuration
 
-Set API-token, default sender name (or phone number), test mode in `config/services.php`:
+Add TurboSMS credentials to `config/services.php`:
 
 ```php
 'turbosms' => [
-    'api_token'  => env('TURBOSMS_API_TOKEN'),
-    'sender'  => env('TURBOSMS_SENDER'),        // For testing use TAXI 
-    'is_test'  => env('TURBOSMS_IS_TEST'),      // Do not send real SMS if true
-    
-    // Optional
-    'timeout'  => env('TURBOSMS_TIMEOUT'),
-    'connect_timeout'  => env('TURBOSMS_CONNECT_TIMEOUT'),
+    'api_token'       => env('TURBOSMS_API_TOKEN'),
+    'sender'          => env('TURBOSMS_SENDER', 'TAXI'),    // default sender name
+    'is_test'         => env('TURBOSMS_IS_TEST', false),    // if true — no real SMS sent
+
+    // Optional HTTP client timeouts (seconds):
+    'timeout'         => env('TURBOSMS_TIMEOUT', 15),
+    'connect_timeout' => env('TURBOSMS_CONNECT_TIMEOUT', 10),
 ],
 ```
 
-and `.env` file:
+`.env` example:
 
-```
+```env
 TURBOSMS_API_TOKEN=your_api_token_here
 TURBOSMS_SENDER=TAXI
 TURBOSMS_IS_TEST=false
 ```
 
-Also possible test senders: `TAXI, AKCIYA, BEAUTY, Best-offer, Best-Shop, BonusShop, IT Alarm, MAGAZIN, Dostavka24, SERVIS TAXI, BRAND`
+Free test senders available in TurboSMS: `TAXI`, `AKCIYA`, `BEAUTY`, `Best-offer`, `Best-Shop`, `BonusShop`, `IT Alarm`, `MAGAZIN`, `Dostavka24`, `SERVIS TAXI`, `BRAND`.
 
-## Usage via notification
+## Usage via Notification
 
-You can use the channel in your `via()` method inside the notification:
+Implement the `toTurboSms()` method in your notification class:
 
 ```php
 use Illuminate\Notifications\Notification;
-use NotificationChannels\TurboSms\TurboSmsMessage;
 use NotificationChannels\TurboSms\TurboSmsChannel;
+use NotificationChannels\TurboSms\TurboSmsMessage;
 
-class AccountApproved extends Notification
+class OrderShipped extends Notification
 {
-    public function via($notifiable)
+    public function via(mixed $notifiable): array
     {
         return [TurboSmsChannel::class];
     }
 
-    public function toTurboSms($notifiable)
+    public function toTurboSms(mixed $notifiable): TurboSmsMessage
     {
-        return (new TurboSmsMessage())->content("Hello SMS!!!")->test(true);
+        return TurboSmsMessage::create("Your order #{$this->order->id} has been shipped!")
+            ->from('MyShop')      // optional: override default sender
+            ->test(false);        // optional: override test mode
     }
 }
 ```
 
-In your notifiable model, make sure to include a `routeNotificationForTurboSms()` method, which returns a phone number
-or an array of phone numbers.
+Add `routeNotificationForTurboSms()` to your notifiable model:
 
 ```php
-public function routeNotificationForTurboSms()
+public function routeNotificationForTurboSms(): string
 {
     return $this->phone;
 }
 ```
 
-### Available notify methods
+## Message Methods
 
-`from()`: Sets the sender's name or phone number.
+| Method | Description |
+|---|---|
+| `content(string $text)` | Set the SMS text |
+| `from(string $sender)` | Override the default sender name or phone |
+| `time(?int $timestamp)` | Schedule sending (Unix timestamp). E.g. `time() + 7*60*60` for +7h |
+| `test(bool $test = true)` | Enable/disable test mode per message (no real SMS sent) |
 
-`content()`: Set a content of the notification message.
+## Usage via Service Container
 
-`time()`: Example argument = `time() + 7*60*60` - Postpone shipping for 7 hours.
-
-`test()`: Test SMS sending (log)
-
-## Usage via service-container
-
-Get balance:
+**Get balance:**
 ```php
-app(TurboSmsApi::class)->getBalance(); // null|float, example 123.45
+$balance = app(\NotificationChannels\TurboSms\TurboSmsApi::class)->getBalance();
+// returns float|null, e.g. 123.45
 ```
 
-Send message:
+**Send message directly:**
 ```php
-app(TurboSmsApi::class)->sendMessage('380969416874', new \NotificationChannels\TurboSms\TurboSmsMessage('Hello World with Laravel!')); // array, API response
+$result = app(\NotificationChannels\TurboSms\TurboSmsApi::class)->sendMessage(
+    '380991234567',
+    \NotificationChannels\TurboSms\TurboSmsMessage::create('Hello Laravel!')
+);
+// returns array with 'success', 'result', 'info' keys
+```
+
+## Error Handling
+
+On failure the channel fires a `NotificationFailed` event with the exception details. You can listen to it:
+
+```php
+use Illuminate\Notifications\Events\NotificationFailed;
+
+Event::listen(NotificationFailed::class, function (NotificationFailed $event) {
+    logger()->error('TurboSMS notification failed', $event->data);
+});
 ```
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+Please see [CHANGELOG](CHANGELOG.md) for recent changes.
 
 ## Security
 
