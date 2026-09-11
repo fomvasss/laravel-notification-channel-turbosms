@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `TurboSmsApi::getSenders(string $type = 'sms'): array` — returns the account sender names (alpha names) with their `status` and `profile.countries`, so the allowed destination countries can be checked before sending
 
+## [2.1.0] - 2026-05-08
+
+### Added
+- Laravel 13 support (`illuminate/notifications` and `illuminate/support` now allow `^13`)
+
+### Changed
+- `README.md` is now the Ukrainian documentation, `README.en.md` the English one (previously `README.md` / `README.uk.md`), with cross-language links between them
+
 ## [2.0.0] - 2026-05-07
 
 ### Added
