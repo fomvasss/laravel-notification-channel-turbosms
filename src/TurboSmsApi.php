@@ -85,7 +85,9 @@ class TurboSmsApi
     {
         $url = $this->baseUri . 'senders/list.json';
 
-        $res = $this->getResponse($url, ['type' => $type]);
+        // Акаунт без жодного відправника — валідна відповідь (response_status: OK),
+        // а не помилка, тому порожній результат тут дозволений.
+        $res = $this->getResponse($url, ['type' => $type], true);
 
         if (isset($res['success']) && $res['success']) {
             return is_array($res['result']) ? $res['result'] : [];
@@ -99,7 +101,7 @@ class TurboSmsApi
      *
      * @throws \RuntimeException|GuzzleException
      */
-    public function getResponse(string $url, array $body = []): array
+    public function getResponse(string $url, array $body = [], bool $allowEmptyResult = false): array
     {
         if ($this->isTest) {
             return [
@@ -131,15 +133,16 @@ class TurboSmsApi
             throw new \RuntimeException($answer['error']);
         }
 
-        if (empty($answer['response_result'])) {
-            $status = $answer['response_status'] ?? 'unknown';
+        $status = $answer['response_status'] ?? 'unknown';
+
+        if (empty($answer['response_result']) && (!$allowEmptyResult || $status !== 'OK')) {
             throw new \RuntimeException('TurboSMS response status: ' . $status);
         }
 
         return [
             'success' => true,
-            'result' => $answer['response_result'],
-            'info' => 'TurboSMS response status: ' . ($answer['response_status'] ?? ''),
+            'result' => $answer['response_result'] ?? [],
+            'info' => 'TurboSMS response status: ' . $status,
         ];
     }
 }

@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `TurboSmsApi::getSenders(string $type = 'sms'): array` — returns the account sender names (alpha names) with their `status` and `profile.countries`, so the allowed destination countries can be checked before sending
 
+## [2.2.1] - 2026-09-11
+
+### Fixed
+- `getSenders()` on an account without senders returned a `RuntimeException` instead of an empty array: an empty `response_result` with `response_status: OK` is a valid answer, not a failure
+
+### Changed
+- `getResponse()` accepts a third argument `allowEmptyResult` (default `false`) to permit an empty `response_result` when the API reports `response_status: OK`
+
 ## [2.1.0] - 2026-05-08
 
 ### Added

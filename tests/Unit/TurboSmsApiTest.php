@@ -75,6 +75,18 @@ class TurboSmsApiTest extends TestCase
         $this->assertSame([], $this->api->getSenders());
     }
 
+    public function test_get_response_allows_empty_result_when_status_is_ok(): void
+    {
+        $api = new TurboSmsApi('test-token', 'TEST');
+
+        $reflection = new \ReflectionMethod($api, 'getResponse');
+
+        $this->assertSame(3, $reflection->getNumberOfParameters());
+        $this->assertSame('allowEmptyResult', $reflection->getParameters()[2]->getName());
+        $this->assertTrue($reflection->getParameters()[2]->isDefaultValueAvailable());
+        $this->assertFalse($reflection->getParameters()[2]->getDefaultValue());
+    }
+
     public function test_get_response_test_mode_returns_expected_structure(): void
     {
         $result = $this->api->getResponse('https://api.turbosms.ua/test', ['foo' => 'bar']);
