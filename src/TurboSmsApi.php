@@ -74,6 +74,27 @@ class TurboSmsApi
     }
 
     /**
+     * Get the account sender names (alpha names).
+     *
+     * Each item contains `id`, `type`, `name`, `status` and `profile`,
+     * where `profile.countries` lists the countries the sender is allowed for.
+     *
+     * @throws \RuntimeException|GuzzleException
+     */
+    public function getSenders(string $type = 'sms'): array
+    {
+        $url = $this->baseUri . 'senders/list.json';
+
+        $res = $this->getResponse($url, ['type' => $type]);
+
+        if (isset($res['success']) && $res['success']) {
+            return is_array($res['result']) ? $res['result'] : [];
+        }
+
+        return [];
+    }
+
+    /**
      * Perform a POST request to the TurboSMS API.
      *
      * @throws \RuntimeException|GuzzleException

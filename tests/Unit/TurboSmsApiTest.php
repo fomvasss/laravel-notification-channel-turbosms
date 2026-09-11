@@ -70,6 +70,11 @@ class TurboSmsApiTest extends TestCase
         $this->assertNull($balance);
     }
 
+    public function test_get_senders_in_test_mode_returns_empty_array(): void
+    {
+        $this->assertSame([], $this->api->getSenders());
+    }
+
     public function test_get_response_test_mode_returns_expected_structure(): void
     {
         $result = $this->api->getResponse('https://api.turbosms.ua/test', ['foo' => 'bar']);

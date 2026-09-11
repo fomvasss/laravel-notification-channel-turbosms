@@ -17,6 +17,7 @@ Send SMS notifications via [turbosms.ua](https://turbosms.ua/) in Laravel with e
 - Scheduled message delivery
 - Test mode — simulate sending without real SMS
 - Get account balance
+- Get sender names (alpha names) and the countries allowed for them
 - `NotificationFailed` event on errors
 
 ---
@@ -144,6 +145,28 @@ You can use `TurboSmsApi` directly via the service container:
 $balance = app(\NotificationChannels\TurboSms\TurboSmsApi::class)->getBalance();
 // float|null — e.g. 123.45
 ```
+
+**Get sender names (alpha names):**
+
+```php
+$senders = app(\NotificationChannels\TurboSms\TurboSmsApi::class)->getSenders();
+
+// [
+//   [
+//     'id'      => 440742,
+//     'type'    => 'sms',
+//     'name'    => 'MyCompany',
+//     'status'  => 'international',   // or 'active', 'moderation', etc.
+//     'profile' => [
+//       'countries' => ['UA', 'PL', 'DE', ...],   // countries allowed for this sender
+//       ...
+//     ],
+//   ],
+// ]
+```
+
+Useful to check whether the sender is allowed for the recipient's country before sending.
+Defaults to type `sms`, returns `[]` in test mode.
 
 **Send a message:**
 
